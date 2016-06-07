@@ -1,4 +1,4 @@
-package com.example.uaharoni.searchkeyplaces.controller;
+package com.example.uaharoni.searchkeyplaces.model;
 
 
 public class Phone {

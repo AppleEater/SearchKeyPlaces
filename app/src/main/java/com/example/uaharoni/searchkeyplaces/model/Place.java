@@ -1,8 +1,9 @@
-package com.example.uaharoni.searchkeyplaces.controller;
+package com.example.uaharoni.searchkeyplaces.model;
 
 import android.media.Image;
 
-import com.example.uaharoni.searchkeyplaces.controller.Address;
+import com.example.uaharoni.searchkeyplaces.model.Address;
+import com.example.uaharoni.searchkeyplaces.model.Phone;
 
 public class Place {
     String name;
