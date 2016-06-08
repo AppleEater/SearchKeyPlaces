@@ -1,9 +1,11 @@
 package com.example.uaharoni.searchkeyplaces.controller;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.CancellationSignal;
 import android.provider.BaseColumns;
 import android.util.Log;
 
@@ -56,6 +58,7 @@ public class PlacesDB extends SQLiteOpenHelper implements BaseColumns{
         } catch (Exception e) {
             Log.e("deleteTBL", "Failed to delete table " + tblName + ". " + e.getMessage());
         }
+        //TODO: Check if need to recreate the table after deleting it
     }
     public Place getPlaceById(String tblName, long rowid){
         Place place = null;
@@ -77,7 +80,40 @@ public class PlacesDB extends SQLiteOpenHelper implements BaseColumns{
           //     db.close();    // Closing the DB may be too angerous, as multiple services may be writing to it
         return place;
     }
+    public Cursor getPlaceNamesCursr(String tblName, String colSort){
+     Cursor cursor=null;
+        Log.d("getPlaceNamesCursr","Obtain data from " + tblName + " sorted by " + colSort);
+        boolean distinct = true;
+        String[] columns = {COL_ID,COL_NAME,COL_ADD_STREET,COL_ADD_BUILDING,COL_ADD_CITY};
+        String selection = null;
+        String[] selectionArgs = {};
+        String groupBy = null;
+        String having = null;
+        String orderBy = colSort;
+        String limit = null;
+        CancellationSignal cancellationSignal = null;
+
+        try{
+            SQLiteDatabase db = this.getReadableDatabase();
+            cursor = db.queryWithFactory(
+                    null
+                    ,distinct
+                    ,tblName
+                    ,columns
+                    ,selection
+                    ,selectionArgs
+                    ,groupBy
+                    ,having
+                    ,orderBy
+                    ,limit
+            );
+        } catch (Exception e){
+            Log.e("getPlaceNamesCursr","Failed to bring cursor. " + e.getMessage());
+        }
+        return cursor;
+    }
     private Place parseCursorRow (Cursor cursor){
+        Log.d("parseCursorRow","Parsing cursor " + cursor.toString());
 
         int id_index = cursor.getColumnIndex(COL_ID);
         int id_name = cursor.getColumnIndex(COL_NAME);
@@ -90,7 +126,39 @@ public class PlacesDB extends SQLiteOpenHelper implements BaseColumns{
 
         return place;
     }
+    public long insertPlace(Place place, String tblName){
+        long rowid=0;
+        Log.d("insertPlace","Inserting Place " + place.getName() + " to table " + tblName);
+        ContentValues updatedValues = extractPlace(place);
+        try{
+            SQLiteDatabase db = this.getWritableDatabase();
+            rowid = db.insert(tblName, null, updatedValues);
+        } catch (Exception e) {
+            Log.e("insertPlace","Error Inserting " + place.getName() + " to table " + tblName + ". " + e.getMessage());
+        }
+        return  rowid;
+    }
+    public int deletePlace(String tblName,Place place){
+        int linesReturned = 0;
+        long rowid = place.getId();
+        String where = COL_ID;
+        String[] whereArgs = {String.valueOf(rowid)};
+        try{
+            SQLiteDatabase db = this.getWritableDatabase();
+            linesReturned = db.delete(tblName,where,whereArgs);
+        } catch (Exception e){
+            Log.e("deletePlace","Error deleting place. " + e.getMessage());
+        }
+        return linesReturned;
+    }
+    private ContentValues extractPlace(Place place){
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, place.getName());
+        values.put(COL_ADD_STREET, place.getAddress().getStreet());
+        values.put(COL_ADD_APARTMENT,place.getAddress().getApartment());
 
+        return values;
+    }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.i("onUpgrade_PlacesDB","inside onUpgrade");
