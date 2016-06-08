@@ -1,10 +1,13 @@
 package com.example.uaharoni.searchkeyplaces.controller;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
+
+import com.example.uaharoni.searchkeyplaces.model.Place;
 
 public class PlacesDB extends SQLiteOpenHelper implements BaseColumns{
     private static final int DB_VER = 1;
@@ -42,6 +45,50 @@ public class PlacesDB extends SQLiteOpenHelper implements BaseColumns{
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+    }
+    public void deleteTBL(String tblName){
+        Log.d("deleteTBL","Deleting table " + tblName);
+        try {
+            SQLiteDatabase db = this.getWritableDatabase();
+            String sqlFormat = String.format("DROP TABLE IF EXISTS %s", tblName);
+            db.execSQL(sqlFormat);
+            db.close();
+        } catch (Exception e) {
+            Log.e("deleteTBL", "Failed to delete table " + tblName + ". " + e.getMessage());
+        }
+    }
+    public Place getPlaceById(String tblName, long rowid){
+        Place place = null;
+        Log.d("getPlaceById","Opening table " + tblName + " to read row " + String.valueOf(rowid));
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {}; // null on purpose, to include all fields
+        String selection = tblName + "." + COL_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(rowid) };
+        String sortOrder = COL_NAME + " ASC";
+
+        Cursor singleRow = db.query(tblName,projection,selection,selectionArgs,null,null,sortOrder);
+
+        if (singleRow.getCount()>0) {
+            place = parseCursorRow(singleRow);
+        } else {
+            Log.e("getPlaceById", "Row " + rowid + " now found");
+        }
+          //     db.close();    // Closing the DB may be too angerous, as multiple services may be writing to it
+        return place;
+    }
+    private Place parseCursorRow (Cursor cursor){
+
+        int id_index = cursor.getColumnIndex(COL_ID);
+        int id_name = cursor.getColumnIndex(COL_NAME);
+        int id_image = cursor.getColumnIndexOrThrow(COL_IMAGE);
+        cursor.moveToFirst();
+        long placeId = cursor.getLong(id_index);
+        String placeName = cursor.getString(id_name);
+        Place place = new Place(placeName);
+        place.setId(placeId);
+
+        return place;
     }
 
     @Override

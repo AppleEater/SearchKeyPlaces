@@ -1,14 +1,9 @@
 package com.example.uaharoni.searchkeyplaces.model;
 
-import android.media.Image;
-
-import com.example.uaharoni.searchkeyplaces.model.Address;
-import com.example.uaharoni.searchkeyplaces.model.Phone;
-
 public class Place {
     String name;
     Address address;
-    Image image;
+    String imageUri;
     Phone[] phones;
     Long id;    //used for DB saving
 
@@ -36,12 +31,12 @@ public class Place {
         this.address = address;
     }
 
-    public Image getImage() {
-        return image;
+    public String getImage() {
+        return imageUri;
     }
 
-    public void setImage(Image image) {
-        this.image = image;
+    public void setImage(String imageUri) {
+        this.imageUri = imageUri;
     }
 
     public Phone[] getPhones() {

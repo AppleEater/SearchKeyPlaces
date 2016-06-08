@@ -19,6 +19,7 @@ public class FavoritesTBL extends PlacesDB {
                 + COL_ADD_LAT + REAL_TYPE
                 + COL_ADD_LONG + REAL_TYPE
                 + ")";
+        Log.d("onCreate","Running command " + sqlCreateTable);
         try {
             db.execSQL(sqlCreateTable);
            } catch (Exception e) {

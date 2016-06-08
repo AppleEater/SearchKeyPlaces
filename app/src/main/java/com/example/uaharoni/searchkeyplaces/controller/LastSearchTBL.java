@@ -27,15 +27,15 @@ public class LastSearchTBL extends PlacesDB{
                 + COL_ADD_LAT + REAL_TYPE
                 + COL_ADD_LONG + REAL_TYPE
                 + ")";
+        Log.d("onCreate","Running command " + sqlCreateTable);
         try {
+            Log.d("onCreate","Running command " + sqlCreateTable);
             db.execSQL(sqlCreateTable);
         } catch (Exception e) {
             Log.d("onCreate_PlaceTBL", "Error creating table " + TBL_NAME_LASTSEARCH + ". " + e.getMessage());
         }
-
     }
-
-    @Override
+        @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         super.onUpgrade(db, oldVersion, newVersion);
     }
